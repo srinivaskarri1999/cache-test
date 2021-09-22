@@ -1,9 +1,11 @@
-import { useState, Fragment } from "react"
-import { Question, Answer, Heading, Button, Wrapper } from "./styles"
-import { data } from "../constants"
+import { useState, Fragment } from 'react'
+import { Question, Answer, Heading, Button, Wrapper } from './styles'
+import { data } from '../constants'
+
+// this is from another branch
 
 const App = () => {
-  const [select, setSelect] = useState("co-1")
+  const [select, setSelect] = useState('co-1')
   const [ans, setAns] = useState(null)
   const cos = Object.keys(data).map((ele) => (
     <Button key={ele} onClick={() => setSelect(ele)}>
@@ -21,7 +23,9 @@ const App = () => {
 
   const res = data[select].map((ele, index) => (
     <Fragment key={index}>
-      <Question onClick={handleChange(index)}>{index+1}) {ele.question}</Question>
+      <Question onClick={handleChange(index)}>
+        {index + 1}) {ele.question}
+      </Question>
       {index === ans ? <Answer>{ele.answer}</Answer> : null}
     </Fragment>
   ))
