@@ -30,6 +30,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: srinivas1999/cache-test:${{ github.event.pull_request.head.ref }}
-          cache-from: type=registry,ref=srinivas1999/cache-test:${{ github.event.pull_request.head.ref }}
-          cache-to: type=registry,ref=srinivas1999/cache-test:${{ github.event.pull_request.head.ref }},mode=max
+          tags: srinivas1999/cache-test:${{ env.DOCKER_TAG }}
+          cache-from: type=registry,ref=srinivas1999/cache-test:cache-${{ github.event.pull_request.head.ref }}
+          cache-to: type=registry,ref=srinivas1999/cache-test:cahe-${{ github.event.pull_request.head.ref }},mode=max
