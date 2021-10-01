@@ -34,7 +34,7 @@ jobs:
           location-type: ${{ steps.docker-cache.outputs.cache-hit == 'true' && 'src' || 'dest' }}
         with:
           context: .
-          push: false
+          push: true
           tags: srinivas1999/cache-test:latest
           ${{ env.cache-type }}: type=local,${{ env.location-type }}=/tmp/.buildx-cache
 

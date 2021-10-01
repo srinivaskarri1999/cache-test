@@ -25,5 +25,5 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: false
+          push: true
           tags: srinivas1999/cache-test:latest
