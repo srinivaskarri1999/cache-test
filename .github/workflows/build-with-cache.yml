@@ -31,7 +31,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
+          push: false
           tags: user/app:latest
           ${{ steps.docker-cache.outputs.cache-hit == 'true' && 'cache-from' || 'cache-to' }}: type=local,src=/tmp/.buildx-cache
           # cache-from: type=local,src=/tmp/.buildx-cache
