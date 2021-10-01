@@ -26,4 +26,4 @@ jobs:
         with:
           context: .
           push: false
-          tags: user/app:latest
+          tags: srinivas1999/cache-test:latest
