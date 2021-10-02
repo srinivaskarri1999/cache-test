@@ -32,7 +32,7 @@ jobs:
         env:
           cache-type: ${{ steps.docker-cache.outputs.cache-hit == 'true' && 'cache-from' || 'cache-to' }}
           location-type: ${{ steps.docker-cache.outputs.cache-hit == 'true' && 'src' || 'dest' }}
-          cache-mode: ${{ steps.docker-cache.outputs.cache-hit == 'true' && null || ',mode=max' }}
+          cache-mode: ${{ steps.docker-cache.outputs.cache-hit == 'true' && '' || ',mode=max' }}
         with:
           context: .
           push: false
