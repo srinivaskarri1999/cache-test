@@ -37,5 +37,5 @@ jobs:
           context: .
           push: false
           tags: srinivas1999/cache-test:latest
-          ${{ env.cache-type }}: type=local,${{ env.location-type }}=/tmp/.buildx-cache${{ cache-mode }}
+          ${{ env.cache-type }}: type=local,${{ env.location-type }}=/tmp/.buildx-cache${{ env.cache-mode }}
 
