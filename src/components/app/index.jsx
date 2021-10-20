@@ -20,6 +20,7 @@ const App = () => {
   }
 
   // new comment added here wow
+  // anothernew comment
 
   const res = data[select].map((ele, index) => (
     <Fragment key={index}>
