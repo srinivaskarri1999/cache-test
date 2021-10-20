@@ -21,6 +21,7 @@ const App = () => {
 
   // new comment added here wow
   // anothernew comment
+  // added new comment from test-package branch
 
   const res = data[select].map((ele, index) => (
     <Fragment key={index}>
