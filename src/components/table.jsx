@@ -1,4 +1,4 @@
-import { StyledTable } from "./app/styles"
+import { StyledTable } from './app/styles'
 
 const Table = ({ headers, data }) => {
   const renderHead = headers.map((ele, index) => <th key={index}>{ele}</th>)
@@ -18,5 +18,7 @@ const Table = ({ headers, data }) => {
     </StyledTable>
   )
 }
+// new line added
+// added another line
 
 export default Table
