@@ -19,5 +19,6 @@ const Table = ({ headers, data }) => {
   )
 }
 // new line added
+// added another line
 
 export default Table
