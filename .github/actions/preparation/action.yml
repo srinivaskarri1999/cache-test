@@ -1,0 +1,40 @@
+name: 'Preparation'
+
+outputs:
+  affected-projects:
+    description: 'List of affected projects seperated by commans'
+    value: ${{ steps.affected-projects.outputs.projects }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout PR
+      uses: actions/checkout@v2
+
+    - name: Use Node.js 16
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+
+    - name: Cache node_modules
+      id: cache-modules
+      uses: actions/cache@v2
+      with:
+        path: node_modules
+        key: mono-${{ hashFiles('package-lock.json') }}
+
+    - name: Install dependencies
+      if: steps.cache-modules.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm ci  --legacy-peer-deps
+
+    - name: Affected projects
+      id: affected-projects
+      shell: bash
+      run: |
+        projectsString='proj1, proj2, proj3, proj4'
+
+        frontEndProjects='proj2\|proj1\|proj8'
+        projects=$(echo $projectsString | grep -o $frontEndProjects | sed ':a;N;$!ba;s/\n/", "/g;s/^/\["/g;s/$/"\]/g')
+
+        echo "::set-output name=projects::$projects"
