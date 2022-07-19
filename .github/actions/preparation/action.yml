@@ -1,9 +1,14 @@
 name: 'Preparation'
 
+inputs:
+  projects:
+    description: 'Projects'
+    required: true
+
 outputs:
   affected-projects:
     description: 'List of affected projects seperated by commans'
-    value: ${{ steps.affected-projects.outputs.projects }}
+    value: ${{ steps.affected-projects.outputs.result }}
 
 runs:
   using: 'composite'
@@ -11,30 +16,88 @@ runs:
     - name: Checkout PR
       uses: actions/checkout@v2
 
-    - name: Use Node.js 16
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16.x
+    # - name: Use Node.js 16
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: 16.x
 
-    - name: Cache node_modules
-      id: cache-modules
-      uses: actions/cache@v2
-      with:
-        path: node_modules
-        key: mono-${{ hashFiles('package-lock.json') }}
+    # - name: Cache node_modules
+    #   id: cache-modules
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: node_modules
+    #     key: mono-${{ hashFiles('package-lock.json') }}
 
-    - name: Install dependencies
-      if: steps.cache-modules.outputs.cache-hit != 'true'
+    # - name: Install dependencies
+    #   if: steps.cache-modules.outputs.cache-hit != 'true'
+    #   shell: bash
+    #   run: npm ci  --legacy-peer-deps
+
+    - name: Nx affected projects
+      id: affected
       shell: bash
-      run: npm ci  --legacy-peer-deps
+      run: |
+        # get_affected_projects() {
+        #   projects=$(echo $1 | sed 's/\s//g;s/,/$|^/g;s/$/$/g;s/^/^/g')
+
+        #   affectedProjects=$(echo "proj1, proj2,proj3, proj10" | sed 's/\s//g;s/,/\n/g')
+
+        #   affectedProjects=$(echo -e "$affectedProjects" | sed -nr "/$projects/p" | sed ':a;N;$!ba;s/\n/", "/g')
+
+        #   if [ ! -z "$affectedProjects" ]; then
+        #     affectedProjects=$(echo "$affectedProjects" | sed 's/^/\["/g;s/$/"\]/g')
+        #   fi
+
+        #   echo $affectedProjects
+        # }
+
+        # jqargs=( )
+        # jqquery='.'
+        # i=0
+
+        # while read project; do
+        #   key=$(jq -r '.key' <<<"$project")
+        #   value=$(jq -r ".value" <<<"$project")
+        #   value=$(get_affected_projects $value)
+        #   [[ $value ]] || continue
+
+        #   jqargs+=( --arg "key$i" "$key" )
+        #   jqargs+=( --arg "value$i" "$value" )
+        #   jqquery+=" | .[\$key$i]=\$value$i"
+
+        #   i=$((i+1))
+        # done <<<$(jq -rc 'to_entries | .[]' <<<"$projects")
+
+        # jqquery+=' | map_values(.|fromjson)'
+
+        # affectedProjects=$(jq -c "${jqargs[@]}" "$jqquery" <<<'{}')
+        affectedProjects=$(echo "proj1, proj2,proj3, proj10")
+
+        echo "::set-output name=affected-projects::$affectedProjects"
 
     - name: Affected projects
       id: affected-projects
-      shell: bash
-      run: |
-        projectsString='proj1, proj2, proj3, proj4'
+      uses: actions/github-script@v6
+      env:
+        PROJECTS: ${{ inputs.projects }}
+        AFFECTED_PROJECTS: ${{ steps.affected.outputs.affected-projects }}
+      with:
+        script: |
+          const { PROJECTS, AFFECTED_PROJECTS } = process.env
+          const projects = JSON.parse(PROJECTS)
+          const affectedProjects = AFFECTED_PROJECTS.split(',').map((project) => project.trim())
 
-        frontEndProjects='proj2\|proj1\|proj8'
-        projects=$(echo $projectsString | grep -o $frontEndProjects | sed ':a;N;$!ba;s/\n/", "/g;s/^/\["/g;s/$/"\]/g')
-
-        echo "::set-output name=projects::$projects"
+          const getAffectedProjects = (projects) => {
+            projects = projects.split(',').map((project) => project.trim())
+            return projects.filter((project) => !!affectedProjects.find((affectedProject) => affectedProject === project))
+          }
+          
+          const affected = {}
+          Object.entries(projects).forEach(([key, value]) => {
+              const projectsArray = getAffectedProjects(value)
+              if(projectsArray.length) {
+                affected[key] = projectsArray
+              }
+          })
+          return JSON.stringify(affected)
+        result-encoding: string
