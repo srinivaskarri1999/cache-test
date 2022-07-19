@@ -19,6 +19,8 @@ jobs:
       - name: Preparation
         id: preparation
         uses: ./.github/actions/preparation
+        with:
+          projects: 'proj1, proj2, proj3, proj4'
 
   lint:
     runs-on: ubuntu-latest

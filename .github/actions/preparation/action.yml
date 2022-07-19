@@ -1,5 +1,10 @@
 name: 'Preparation'
 
+inputs:
+  projects:
+    description: 'Projects'
+    required: true
+
 outputs:
   affected-projects:
     description: 'List of affected projects seperated by commans'
@@ -32,7 +37,7 @@ runs:
       id: affected-projects
       shell: bash
       run: |
-        projectsString='proj1, proj2, proj3, proj4'
+        projectsString='${{ inputs.projects }}'
 
         frontEndProjects='proj2\|proj1\|proj8'
         projects=$(echo $projectsString | grep -o $frontEndProjects | sed ':a;N;$!ba;s/\n/", "/g;s/^/\["/g;s/$/"\]/g')
