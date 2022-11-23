@@ -36,42 +36,11 @@ runs:
     - name: Nx affected projects
       id: affected
       shell: bash
+      env:
+        buildCommand: ${{ true && 'build' || 'build-storybook' }}
       run: |
-        # get_affected_projects() {
-        #   projects=$(echo $1 | sed 's/\s//g;s/,/$|^/g;s/$/$/g;s/^/^/g')
-
-        #   affectedProjects=$(echo "proj1, proj2,proj3, proj10" | sed 's/\s//g;s/,/\n/g')
-
-        #   affectedProjects=$(echo -e "$affectedProjects" | sed -nr "/$projects/p" | sed ':a;N;$!ba;s/\n/", "/g')
-
-        #   if [ ! -z "$affectedProjects" ]; then
-        #     affectedProjects=$(echo "$affectedProjects" | sed 's/^/\["/g;s/$/"\]/g')
-        #   fi
-
-        #   echo $affectedProjects
-        # }
-
-        # jqargs=( )
-        # jqquery='.'
-        # i=0
-
-        # while read project; do
-        #   key=$(jq -r '.key' <<<"$project")
-        #   value=$(jq -r ".value" <<<"$project")
-        #   value=$(get_affected_projects $value)
-        #   [[ $value ]] || continue
-
-        #   jqargs+=( --arg "key$i" "$key" )
-        #   jqargs+=( --arg "value$i" "$value" )
-        #   jqquery+=" | .[\$key$i]=\$value$i"
-
-        #   i=$((i+1))
-        # done <<<$(jq -rc 'to_entries | .[]' <<<"$projects")
-
-        # jqquery+=' | map_values(.|fromjson)'
-
-        # affectedProjects=$(jq -c "${jqargs[@]}" "$jqquery" <<<'{}')
-        affectedProjects=$(echo "proj1, proj2,proj3, proj10")
+        affectedProjects=$(echo 'proj1, proj2')
+        echo "$buildCommand"
 
         echo "::set-output name=affected-projects::$affectedProjects"
 
@@ -81,23 +50,53 @@ runs:
       env:
         PROJECTS: ${{ inputs.projects }}
         AFFECTED_PROJECTS: ${{ steps.affected.outputs.affected-projects }}
+        buildCommand: ${{ 1 && 'build' || 'build-storybook' }}
       with:
         script: |
-          const { PROJECTS, AFFECTED_PROJECTS } = process.env
+          const { PROJECTS, AFFECTED_PROJECTS, buildCommand } = process.env
           const projects = JSON.parse(PROJECTS)
-          const affectedProjects = AFFECTED_PROJECTS.split(',').map((project) => project.trim())
+          console.log("Build Command:", buildCommand)
+
+          /* const affectedProjects = JSON.parse(AFFECTED_PROJECTS)
+          let visitedNodes = {}
+
+          const isParentChanged = (targetNode, node) => {
+            if(targetNode === node) {
+              return true
+            }
+            if(node) {
+              visitedNodes[node] = true
+            }
+
+            let children = !!node ? [] : affectedProjects.projects
+            if (node && node.length && affectedProjects.projectGraph.dependencies[node]) {
+              children = affectedProjects.projectGraph.dependencies[node] || []
+              children = children.map((project) => project.target)
+            }
+
+            for(let i = 0; i < children.length; i++) {
+              if(!visitedNodes[children[i]] && isParentChanged(targetNode, children[i])) {
+                return true
+              }
+            }
+            
+            return false
+          }
 
           const getAffectedProjects = (projects) => {
-            projects = projects.split(',').map((project) => project.trim())
-            return projects.filter((project) => !!affectedProjects.find((affectedProject) => affectedProject === project))
+            return projects.filter((project) => {
+              const found = !!affectedProjects.projects.find((affectedProject) => affectedProject === project.projectName)
+              return found || (project.checkParentChange && isParentChanged(project.projectName))
+            })
           }
-          
+
           const affected = {}
           Object.entries(projects).forEach(([key, value]) => {
               const projectsArray = getAffectedProjects(value)
               if(projectsArray.length) {
-                affected[key] = projectsArray
+                affected[key] = projectsArray.map((project) => project.projectName)
               }
-          })
-          return JSON.stringify(affected)
+          }) */
+
+          return JSON.stringify({})
         result-encoding: string
