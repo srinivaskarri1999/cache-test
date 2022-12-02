@@ -1,0 +1,73 @@
+name: 'Preparation'
+
+inputs:
+  projects:
+    description: 'Projects'
+    required: true
+
+outputs:
+  affected-projects:
+    description: 'List of affected projects seperated by commans'
+    value: ${{ steps.affected-projects.outputs.result }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout PR
+      uses: actions/checkout@v2
+
+    # - name: Use Node.js 16
+    #   uses: actions/setup-node@v1
+    #   with:
+    #     node-version: 16.x
+
+    # - name: Cache node_modules
+    #   id: cache-modules
+    #   uses: actions/cache@v2
+    #   with:
+    #     path: node_modules
+    #     key: mono-${{ hashFiles('package-lock.json') }}
+
+    # - name: Install dependencies
+    #   if: steps.cache-modules.outputs.cache-hit != 'true'
+    #   shell: bash
+    #   run: npm ci  --legacy-peer-deps
+
+    - name: Nx affected projects
+      id: affected
+      shell: bash
+      env:
+        buildCommand: ${{ true && 'build' || 'build-storybook' }}
+      run: |
+        affectedProjects=$(echo 'edgetag-website, ui-kit')
+
+        echo "::set-output name=affected-projects::$affectedProjects"
+
+    - name: Affected projects
+      id: affected-projects
+      uses: actions/github-script@v6
+      env:
+        PROJECTS: ${{ inputs.projects }}
+        AFFECTED_PROJECTS: ${{ steps.affected.outputs.affected-projects }}
+      with:
+        script: |
+          const { PROJECTS, AFFECTED_PROJECTS } = process.env
+          const projectsJson = JSON.parse(PROJECTS)
+          const affectedProjects = AFFECTED_PROJECTS.split(',').map((project) => project.trim())
+          console.log("Affected String:", affectedProjects)
+
+          const getAffectedProjects = (projects) => {
+            console.log("Projects:", projects)
+            return projects.filter((project) => !!affectedProjects.find((affectedProject) => affectedProject === project.projectName))
+          }
+
+          const affected = {}
+          Object.entries(projectsJson).forEach(([key, value]) => {
+              const projectsArray = getAffectedProjects(value)
+              if(projectsArray.length) {
+                affected[key] = projectsArray
+              }
+          })
+          console.log("Affected Projects:", affected)
+          return JSON.stringify(affected)
+        result-encoding: string

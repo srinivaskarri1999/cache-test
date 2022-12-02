@@ -1,0 +1,26 @@
+name: Merge
+
+on:
+  pull_request:
+    branches: [main]
+    types:
+      - closed
+
+concurrency:
+  group: ci-merge-${{ github.ref }}-1
+  cancel-in-progress: true
+
+jobs:
+  if_merged:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      affected-projects: ${{ steps.preparation.outputs.affected-projects }}
+
+    steps:
+      - name: github Sha
+        shell: bash
+        run: echo $GITHUB_REF
+        env:
+          GITHUB_PR_SHA: ${{ github.event.pull_request.head.sha }}
