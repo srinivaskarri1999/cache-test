@@ -7,7 +7,7 @@ inputs:
 
 outputs:
   affected-projects:
-    description: 'List of affected projects seperated by commans'
+    description: 'List of affected projects separated by commas'
     value: ${{ steps.affected-projects.outputs.result }}
 
 runs:
@@ -15,23 +15,12 @@ runs:
   steps:
     - name: Checkout PR
       uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
 
-    # - name: Use Node.js 16
-    #   uses: actions/setup-node@v1
-    #   with:
-    #     node-version: 16.x
-
-    # - name: Cache node_modules
-    #   id: cache-modules
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: node_modules
-    #     key: mono-${{ hashFiles('package-lock.json') }}
-
-    # - name: Install dependencies
-    #   if: steps.cache-modules.outputs.cache-hit != 'true'
-    #   shell: bash
-    #   run: npm ci  --legacy-peer-deps
+    - name: Github Sha
+      shell: bash
+      run: echo '${{ github.event.pull_request.head.sha }}'
 
     - name: Nx affected projects
       id: affected
