@@ -24,3 +24,18 @@ jobs:
         run: echo $GITHUB_REF
         env:
           GITHUB_PR_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Preparation
+        id: preparation
+        uses: ./.github/actions/preparation
+        with:
+          projects: |
+            {
+              "frontendProjects": [{ "projectName": "edgetag-app-ui" },
+                                    { "projectName": "edgetag-website" }, 
+                                    { "projectName": "edgetag-sdk-demo" }],
+              "backendProjects": [{ "projectName": "crm-app-api" }, 
+                                  { "projectName": "edgetag-app-api" }],
+              "dockerProjects": [{ "projectName": "cloud-app-ui" }],
+              "storybookProjects": [{ "projectName": "ui-kit", "buildCommand": "build-storybook", "configuration": "ci" }]
+            }
