@@ -7,31 +7,29 @@ inputs:
 
 outputs:
   affected-projects:
-    description: 'List of affected projects seperated by commans'
+    description: 'List of affected projects separated by commas'
     value: ${{ steps.affected-projects.outputs.result }}
 
 runs:
   using: 'composite'
   steps:
     - name: Checkout PR
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        ref: ${{ github.event.pull_request.head.sha }}
 
-    # - name: Use Node.js 16
-    #   uses: actions/setup-node@v1
-    #   with:
-    #     node-version: 16.x
+    - name: Derive appropriate SHAs for base and head for `nx affected` commands
+      uses: nrwl/nx-set-shas@v3
 
-    # - name: Cache node_modules
-    #   id: cache-modules
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: node_modules
-    #     key: mono-${{ hashFiles('package-lock.json') }}
-
-    # - name: Install dependencies
-    #   if: steps.cache-modules.outputs.cache-hit != 'true'
-    #   shell: bash
-    #   run: npm ci  --legacy-peer-deps
+    - name: Nx SHAs
+      shell: bash
+      run: |
+        echo "BASE: ${{ env.NX_BASE }}"
+        echo "HEAD: ${{ env.NX_HEAD }}"
+      env:
+        base: ${{ env.NX_BASE }}
+        head: ${{ env.NX_HEAD }}
 
     - name: Nx affected projects
       id: affected
